@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+int main(int argc, char* argv[])
+{
+
+   int images = 0;
+   char title[20];
+   uint8_t buffer[512];
+
+   FILE* input = fopen("card.raw", "r");
+   
+   if( input == NULL )
+   {
+    fclose(input);
+    printf("Couln't open file");
+    return 1;
+   }
+   
+    FILE* output= NULL ;                                         /////why this output pointer is set to null 
+     
+     while( fread(buffer, 512, 1, input) == 1 )                     ///// end of file TEST 
+      //fread(buffer, 512, 1, input);
+      //while(!feof(input))
+    {
+        
+                                                              
+       if (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff &&( buffer[3] == 0xe0 || buffer[3] == 0xe1 ))
+        {
+
+            if( output != NULL )                                   ///// DID NOT UNDERSTAND THIS
+            {
+               fclose(output);
+            }   
+            
+             
+            sprintf(title, "%03d.jpg", images);               ///// CREATE AN IMAGE FILE
+            
+            output = fopen(title, "w");                             ///// OPEN THE FILE FOR WRITING
+            
+            images++;                                       //// INCREMENT THE IMAGES FOR NAMING 
+            
+            
+        }
+
+      if( images > 0 )
+      {
+        fwrite(buffer, sizeof (buffer), 1, output);        
+    }
+    
+    
+   fclose(output);
+   fclose(input);
+   
+   return 0;
+}
